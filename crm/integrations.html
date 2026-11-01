@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Integrations · CRM</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;1,6..72,300&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script>try { if (!localStorage.getItem("lumen-crm-session") && !/access_token|error=/.test(location.hash)) location.replace("login.html"); } catch (e) {}</script>
+</head>
+<body data-page="integrations">
+  <div class="shell">
+    <aside id="nav"></aside>
+    <main>
+      <header class="page-head">
+        <div>
+          <p class="eyebrow">Integrations</p>
+          <h1>Plug in <span class="glow"><span class="glow-text">your tools</span></span></h1>
+        </div>
+        
+      </header>
+
+      <section class="card">
+        <div class="card-head"><h2>Import &amp; export</h2></div>
+        <p class="hint">Bring leads in from a spreadsheet (CSV with a "name" column, plus optional company, email, phone, stage, source), or take your data out.</p>
+        <div class="data-actions">
+          <label class="btn btn-primary file-btn">Import leads (CSV)<input type="file" id="import-leads" accept=".csv,text/csv"></label>
+          <button class="btn" id="export-leads">Export leads</button>
+          <button class="btn" id="export-deals">Export deals</button>
+          <button class="btn" id="export-backup">Download full backup</button>
+          <label class="btn file-btn">Restore backup<input type="file" id="import-backup" accept=".json,application/json"></label>
+          <span class="msg" id="data-msg" aria-live="polite"></span>
+        </div>
+      </section>
+      <h2 class="section-gap" style="margin:32px 0 12px">Apps</h2>
+      <div class="notice">These app connections are placeholders for now. "Connect" only marks an app as set up on this page — no data syncs until the CRM has a backend.</div>
+      <section class="grid apps" id="apps"></section>
+    </main>
+  </div>
+  <div id="modal-root"></div>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

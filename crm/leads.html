@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Leads · CRM</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;1,6..72,300&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script>try { if (!localStorage.getItem("lumen-crm-session") && !/access_token|error=/.test(location.hash)) location.replace("login.html"); } catch (e) {}</script>
+</head>
+<body data-page="leads">
+  <div class="shell">
+    <aside id="nav"></aside>
+    <main>
+      <header class="page-head">
+        <div>
+          <p class="eyebrow">Leads · <span id="count"></span></p>
+          <h1>The people <span class="glow"><span class="glow-text">behind it</span></span></h1>
+        </div>
+        <button class="btn btn-primary" id="add">+ New lead</button>
+      </header>
+
+      <div class="views" id="views"></div>
+      <div class="toolbar">
+        <input class="input" id="search" type="search" placeholder="Search name, company, email or phone">
+        <button type="button" class="btn" id="filter-toggle" aria-expanded="false" aria-controls="filter-panel">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 5h18M6 12h12M10 19h4"/></svg>
+          Filters <span class="count-dot" id="filter-count" hidden></span>
+        </button>
+      </div>
+      <div class="filter-panel card" id="filter-panel" hidden></div>
+      <div class="filter-summary" id="filter-summary" hidden></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Name</th><th>Contact</th><th>Source</th><th>Lead stage</th><th>Deal value</th><th>Added</th></tr></thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+  <div id="modal-root"></div>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

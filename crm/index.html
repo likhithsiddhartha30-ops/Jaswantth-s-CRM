@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Overview · CRM</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;1,6..72,300&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script>try { if (!localStorage.getItem("lumen-crm-session") && !/access_token|error=/.test(location.hash)) location.replace("login.html"); } catch (e) {}</script>
+</head>
+<body data-page="dashboard">
+  <div class="shell">
+    <aside id="nav"></aside>
+    <main>
+      <header class="page-head">
+        <div>
+          <p class="eyebrow">Overview</p>
+          <h1>Every lead is only<br> <span class="glow"><span class="glow-text">the beginning</span></span></h1>
+        </div>
+        <a class="btn btn-primary" href="pipeline.html">Open pipeline →</a>
+      </header>
+
+      <section class="grid kpis" id="kpis"></section>
+      <section class="grid two-col">
+        <div class="card">
+          <div class="card-head"><h2>Pipeline by stage</h2><a href="pipeline.html">View board</a></div>
+          <div class="bars" id="stages"></div>
+        </div>
+        <div class="card">
+          <div class="card-head"><h2>Next calls</h2><a href="calendar.html">Calendar</a></div>
+          <div class="list" id="calls"></div>
+        </div>
+        <div class="card">
+          <div class="card-head"><h2>Newest leads</h2><a href="leads.html">All leads</a></div>
+          <div class="list" id="recent"></div>
+        </div>
+        <div class="card">
+          <div class="card-head"><h2>Up next</h2><a href="tasks.html">All tasks</a></div>
+          <div class="list" id="upcoming"></div>
+        </div>
+        <div class="card full-span">
+          <div class="card-head"><h2>Recent activity</h2></div>
+          <div class="list" id="activity"></div>
+        </div>
+      </section>
+    </main>
+  </div>
+  <div id="modal-root"></div>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

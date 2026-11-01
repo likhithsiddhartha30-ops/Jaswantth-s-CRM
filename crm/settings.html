@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Settings · CRM</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;1,6..72,300&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script>try { if (!localStorage.getItem("lumen-crm-session") && !/access_token|error=/.test(location.hash)) location.replace("login.html"); } catch (e) {}</script>
+</head>
+<body data-page="settings">
+  <div class="shell">
+    <aside id="nav"></aside>
+    <main>
+      <header class="page-head">
+        <div>
+          <p class="eyebrow">Settings</p>
+          <h1>Make it <span class="glow"><span class="glow-text">your own</span></span></h1>
+        </div>
+        
+      </header>
+
+      <section class="grid settings">
+        <div class="card" data-admin>
+          <div class="card-head"><h2>Opportunity pipeline &amp; statuses</h2></div>
+          <p class="hint">Opportunity statuses: the columns on your Pipeline board, in order. Mark each one Active, Won (counts as revenue) or Lost. Click a colour square to change it. Deals in a removed status move to the first one.</p>
+          <div id="stages-editor"></div>
+        </div>
+        <div class="card" data-admin>
+          <div class="card-head"><h2>Lead stages</h2></div>
+          <p class="hint">The stages each lead can be in, each with its own colour. Leads in a removed stage move to the first one.</p>
+          <div id="statuses-editor"></div>
+        </div>
+        <div class="card" data-admin>
+          <div class="card-head"><h2>Lead sources</h2></div>
+          <p class="hint">Where leads come from, each with its own colour — used on Leads and in Marketing Analytics.</p>
+          <div id="sources-editor"></div>
+        </div>
+        <form class="card" id="profile" novalidate>
+          <div class="card-head"><h2>Login details</h2></div>
+          <div class="form">
+            <div class="field full"><label for="p-name">Name</label><input class="input" id="p-name" name="name" autocomplete="name"></div>
+            <div class="field full"><label for="p-email">Email (used to sign in · changed on the Team page)</label><input class="input" id="p-email" name="email" type="email" autocomplete="email"></div>
+            <div class="field"><label for="p-current">Current password</label><input class="input" id="p-current" name="current" type="password" autocomplete="current-password"></div>
+            <div class="field"><label for="p-new">New password</label><input class="input" id="p-new" name="newpw" type="password" autocomplete="new-password"></div>
+          </div>
+          <p class="hint" style="margin:12px 0 0">Leave the password fields empty to keep your current password.</p>
+          <div class="edit-actions"><span class="msg" id="profile-msg" aria-live="polite"></span><button class="btn btn-primary" type="submit">Save login details</button></div>
+        </form>
+        <div class="card" data-admin>
+          <div class="card-head"><h2>Start fresh</h2></div>
+          <p class="hint">Delete every lead, deal, call, task, campaign and activity entry. Your stages, sources and login stay as they are.</p>
+          <button class="btn btn-danger" id="reset" type="button">Delete all records</button>
+        </div>
+      </section>
+    </main>
+  </div>
+  <div id="modal-root"></div>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

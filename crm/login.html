@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sign in · CRM</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;1,6..72,300&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body data-page="login">
+  <div class="auth-page">
+    <section class="auth-hero">
+      <div class="brand" style="padding:0" data-app-name>CRM</div>
+      <h1>The form is only<br><span class="glow"><span class="glow-text">the beginning</span></span></h1>
+      <p>Contacts, deals and follow-ups in one quiet, focused place.</p>
+    </section>
+
+    <section class="auth-panel">
+      <form class="auth-card" id="auth" novalidate>
+        <h2 id="auth-title">Welcome back</h2>
+        <p class="sub" id="auth-sub"></p>
+        <div class="field" id="name-field"><label for="name">Your name</label><input class="input" id="name" name="name" autocomplete="name"></div>
+        <div class="field"><label for="email">Email</label><input class="input" id="email" name="email" type="email" autocomplete="email"></div>
+        <div class="field"><label for="password">Password</label><input class="input" id="password" name="password" type="password"></div>
+        <div class="field" id="confirm-field"><label for="confirm">Confirm password</label><input class="input" id="confirm" name="confirm" type="password" autocomplete="new-password"></div>
+        <p class="error" id="auth-msg" aria-live="polite"></p>
+        <button class="btn btn-primary" id="submit" type="submit">Sign in</button>
+        <div class="switch" id="switch"></div>
+        <p class="note">Access is by invitation only.</p>
+      </form>
+    </section>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

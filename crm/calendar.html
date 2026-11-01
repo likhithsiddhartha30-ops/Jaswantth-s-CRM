@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Calls & Calendar · CRM</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;1,6..72,300&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script>try { if (!localStorage.getItem("lumen-crm-session") && !/access_token|error=/.test(location.hash)) location.replace("login.html"); } catch (e) {}</script>
+</head>
+<body data-page="calendar">
+  <div class="shell">
+    <aside id="nav"></aside>
+    <main>
+      <header class="page-head">
+        <div>
+          <p class="eyebrow">Calls &amp; Calendar · <span id="call-stats"></span></p>
+          <h1>Every call, <span class="glow"><span class="glow-text">on time</span></span></h1>
+        </div>
+        <button class="btn btn-primary" id="add">+ Schedule call</button>
+      </header>
+
+      <section class="cal-layout">
+        <div class="card">
+          <div class="cal-bar">
+            <h2 id="cal-title"></h2>
+            <button class="btn btn-sm" id="today">Today</button>
+            <button class="icon-btn" id="prev" aria-label="Previous month">‹</button>
+            <button class="icon-btn" id="next" aria-label="Next month">›</button>
+          </div>
+          <div class="cal-grid" id="cal-grid"></div>
+        </div>
+        <div class="card">
+          <div class="card-head"><h2 id="day-title"></h2></div>
+          <div class="day-list" id="day-list"></div>
+          <button class="btn btn-ghost" id="add-day" style="margin-top:8px">+ Call on this day</button>
+        </div>
+      </section>
+      <section class="grid section-gap">
+        <div class="card">
+          <div class="card-head"><h2>Upcoming calls</h2></div>
+          <div class="table-wrap"><table>
+            <thead><tr><th>With</th><th>Type</th><th>When</th><th>Length</th><th>Status</th></tr></thead>
+            <tbody id="upcoming-calls"></tbody>
+          </table></div>
+        </div>
+        <div class="card">
+          <div class="card-head"><h2>Call history</h2></div>
+          <div class="table-wrap"><table>
+            <thead><tr><th>With</th><th>Type</th><th>When</th><th>Length</th><th>Status</th></tr></thead>
+            <tbody id="past-calls"></tbody>
+          </table></div>
+        </div>
+      </section>
+    </main>
+  </div>
+  <div id="modal-root"></div>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

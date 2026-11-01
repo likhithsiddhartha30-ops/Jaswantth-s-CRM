@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Revenue · CRM</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;1,6..72,300&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script>try { if (!localStorage.getItem("lumen-crm-session") && !/access_token|error=/.test(location.hash)) location.replace("login.html"); } catch (e) {}</script>
+</head>
+<body data-page="revenue">
+  <div class="shell">
+    <aside id="nav"></aside>
+    <main>
+      <header class="page-head">
+        <div>
+          <p class="eyebrow">Revenue</p>
+          <h1>What the work <span class="glow"><span class="glow-text">brings in</span></span></h1>
+        </div>
+        
+      </header>
+
+      <section class="card" id="goal-card"></section>
+      <section class="grid kpis-3 section-gap" id="kpis"></section>
+      <section class="card section-gap">
+        <div class="card-head"><h2>Revenue by month</h2><span class="meta">Won deals by close date · last 6 months</span></div>
+        <div id="monthly"></div>
+      </section>
+      <section class="grid two-col section-gap">
+        <div class="card">
+          <div class="card-head"><h2>Forecast</h2><span class="meta">Open deals weighted by stage</span></div>
+          <div class="table-wrap"><table class="plain">
+            <thead><tr><th>Stage</th><th>Deals</th><th>Value</th><th>Chance</th><th>Weighted</th></tr></thead>
+            <tbody id="forecast"></tbody>
+          </table></div>
+        </div>
+        <div class="card">
+          <div class="card-head"><h2>Top clients</h2></div>
+          <div class="list" id="top-clients"></div>
+        </div>
+      </section>
+      <section class="card section-gap">
+        <div class="card-head"><h2>Won deals</h2></div>
+        <div class="table-wrap"><table class="plain">
+          <thead><tr><th>Deal</th><th>Client</th><th>Closed</th><th>Value</th></tr></thead>
+          <tbody id="won-deals"></tbody>
+        </table></div>
+      </section>
+    </main>
+  </div>
+  <div id="modal-root"></div>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

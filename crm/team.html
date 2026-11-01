@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Team · CRM</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;1,6..72,300&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script>try { if (!localStorage.getItem("lumen-crm-session") && !/access_token|error=/.test(location.hash)) location.replace("login.html"); } catch (e) {}</script>
+</head>
+<body data-page="team">
+  <div class="shell">
+    <aside id="nav"></aside>
+    <main>
+      <header class="page-head">
+        <div>
+          <p class="eyebrow">Team · <span id="team-count"></span></p>
+          <h1>Who's <span class="glow"><span class="glow-text">on board</span></span></h1>
+        </div>
+        <button class="btn btn-primary" id="add">+ Add person</button>
+      </header>
+
+      <section class="card">
+        <div class="card-head"><h2>Sign-up link</h2></div>
+        <p class="hint">Only people on this list can create an account. Add them, then send them this link: they choose a password using the same email.</p>
+        <div class="link-row"><input class="input" id="signup-link" readonly aria-label="Sign-up link"><button class="btn" id="copy-link" type="button">Copy link</button></div>
+        <p class="msg" id="team-msg" aria-live="polite"></p>
+      </section>
+
+      <section class="table-wrap section-gap">
+        <table>
+          <thead><tr><th>Person</th><th>Role</th><th>Status</th><th>Last sign-in</th><th></th></tr></thead>
+          <tbody id="team-rows"></tbody>
+        </table>
+      </section>
+
+      <section class="card section-gap">
+        <div class="card-head"><h2>What each role can do</h2></div>
+        <div class="list">
+          <div class="list-item"><span class="badge">Admin</span><div class="grow">Everything, including this page, Settings and Integrations.</div></div>
+          <div class="list-item"><span class="badge">Setter</span><div class="grow">Leads, Calls &amp; Calendar and Tasks. Adds and edits leads, calls and tasks.</div></div>
+          <div class="list-item"><span class="badge">Closer</span><div class="grow">Leads, Pipeline, Calls &amp; Calendar, Tasks and Revenue. Edits leads, deals, calls and tasks.</div></div>
+          <div class="list-item"><span class="badge">Media buyer</span><div class="grow">Marketing Analytics, where they manage campaigns, and Leads (view only).</div></div>
+          <div class="list-item"><span class="badge">Client</span><div class="grow">A view-only results dashboard: Overview, Pipeline, Revenue and Marketing. Sees lead names, never emails or phone numbers.</div></div>
+        </div>
+      </section>
+    </main>
+  </div>
+  <div id="modal-root"></div>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
