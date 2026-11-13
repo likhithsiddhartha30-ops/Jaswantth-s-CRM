@@ -687,11 +687,17 @@ function initContacts() {
 }
 
 /* ---------- Pipeline ---------- */
-// When a deal's stage changes, push the same stage name onto the lead's status (if it exists there).
+// When a deal's stage changes, push the equivalent status onto the lead.
+// Exact name match wins; for Won stages with no matching status name, fall back to "Closed".
 function syncContactFromDeal(deal) {
   const contact = contactOf(deal.contactId);
-  if (!contact || !db.statuses.includes(deal.stage)) return;
-  contact.status = deal.stage;
+  if (!contact) return;
+  if (db.statuses.includes(deal.stage)) {
+    contact.status = deal.stage;
+  } else if (stageType(deal.stage) === "Won") {
+    const closed = db.statuses.find((s) => s.toLowerCase() === "closed") || db.statuses.find((s) => !db.stages.includes(s));
+    if (closed) contact.status = closed;
+  }
 }
 // When a lead's status changes, push the same status name onto their open deal's stage (if it exists there).
 function syncDealsFromContact(contact) {
