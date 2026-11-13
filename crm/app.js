@@ -168,7 +168,7 @@ const sb = window.supabase && window.SUPABASE_URL && !/^YOUR_/.test(window.SUPAB
 const TABLES = {
   contacts: ["name", "company", "email", "phone", "status", "source", "created", "notes"],
   deals: ["title", "contactId", "value", "stage", "close"],
-  calls: ["contactId", "type", "status", "date", "time", "duration", "notes"],
+  calls: ["contactId", "type", "status", "date", "time", "duration", "inviteLead", "guestEmail", "notes"],
   tasks: ["title", "contactId", "due", "priority", "done"],
   campaigns: ["name", "channel", "start", "spend", "impressions", "clicks", "leads"],
   activity: ["text", "at"],
@@ -758,9 +758,14 @@ function callForm(existing, date) {
       { name: "date", label: "Date", type: "date", default: day() },
       { name: "time", label: "Time", type: "time", default: "10:00" },
       { name: "duration", label: "Length (minutes)", type: "number", default: 30 },
+      // Calendar guests besides the host: the lead and/or one more person.
+      { name: "inviteLead", label: "Invite the lead", type: "select", options: [["Yes", "Yes"], ["No", "No"]], default: "Yes" },
+      { name: "guestEmail", label: "Extra guest email (optional)", type: "email" },
       { name: "notes", label: "Notes / outcome", type: "textarea", full: true },
     ],
     onSave: (data) => {
+      data.guestEmail = data.guestEmail.toLowerCase();
+      if (data.guestEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.guestEmail)) { alert(`"${data.guestEmail}" isn't a valid email, so the call wasn't saved.`); return; }
       if (existing) { if (existing.status !== data.status) log(`${data.type} with ${contactName(data.contactId)}: ${data.status.toLowerCase()}`); Object.assign(existing, data); }
       else { db.calls.push({ id: uid(), ...data }); log(`${data.type} booked with ${contactName(data.contactId)}`); }
       calSelected = data.date; const d = parseDay(data.date); calMonth = new Date(d.getFullYear(), d.getMonth(), 1);
