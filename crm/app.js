@@ -503,7 +503,7 @@ function contactForm(existing, onDone = renderContacts) {
       { name: "notes", label: "Notes", type: "textarea", full: true },
     ],
     onSave: (data) => {
-      if (existing) { Object.assign(existing, data); log(`Updated lead ${data.name}`); }
+      if (existing) { Object.assign(existing, data); syncDealsFromContact(existing); log(`Updated lead ${data.name}`); }
       else { db.contacts.push({ id: uid(), ...data }); log(`New lead: ${data.name} (${data.source})`); }
       save(); onDone();
     },
@@ -671,6 +671,18 @@ function initContacts() {
 }
 
 /* ---------- Pipeline ---------- */
+// When a deal's stage changes, push the same stage name onto the lead's status (if it exists there).
+function syncContactFromDeal(deal) {
+  const contact = contactOf(deal.contactId);
+  if (!contact || !db.statuses.includes(deal.stage)) return;
+  contact.status = deal.stage;
+}
+// When a lead's status changes, push the same status name onto their open deal's stage (if it exists there).
+function syncDealsFromContact(contact) {
+  if (!db.stages.includes(contact.status)) return;
+  db.deals.filter((d) => d.contactId === contact.id && isOpen(d)).forEach((d) => { d.stage = contact.status; });
+}
+
 function dealForm(existing, stage) {
   if (!db.contacts.length) { alert("Add a lead first."); return; }
   // Moving a deal into a Won status asks for the payment first; cancelling leaves the deal where it was.
@@ -689,8 +701,8 @@ function dealForm(existing, stage) {
       { name: "close", label: "Close date", type: "date", default: day(14), full: true },
     ],
     onSave: (data) => {
-      if (existing) { if (existing.stage !== data.stage) log(`${data.title} moved to ${data.stage}`); Object.assign(existing, data); }
-      else { db.deals.push({ id: uid(), ...data }); log(`New deal: ${data.title}`); }
+      if (existing) { if (existing.stage !== data.stage) log(`${data.title} moved to ${data.stage}`); Object.assign(existing, data); syncContactFromDeal(existing); }
+      else { const nd = { id: uid(), ...data }; db.deals.push(nd); syncContactFromDeal(nd); log(`New deal: ${data.title}`); }
       save(); renderPipeline();
     },
     onDelete: existing && (() => { db.deals = db.deals.filter((d) => d.id !== existing.id); log(`Deleted deal ${existing.title}`); save(); renderPipeline(); }),
@@ -743,6 +755,7 @@ function initPipeline() {
       const wasOpen = isOpen(deal);
       deal.stage = col.dataset.stage;
       if (wasOpen && !isOpen(deal)) deal.close = day(); // a deal dropped into a Won or Lost status closes today
+      syncContactFromDeal(deal);
       log(`${deal.title} moved to ${deal.stage}`); save();
     }
     renderPipeline();
