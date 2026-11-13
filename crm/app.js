@@ -15,6 +15,7 @@ const OLD_STATUS_MAP = { Lead: "Typeform Lead", Active: "Call Booked", Customer:
 const DEFAULT_SOURCES = ["Instagram", "Referral", "Website", "Meta Ads", "YouTube"];
 const CALL_TYPES = ["Discovery call", "Follow-up", "Demo", "Onboarding", "Check-in"];
 const CALL_STATUSES = ["Scheduled", "Completed", "No-show", "Cancelled"];
+const PAYMENT_METHODS = ["", "UPI", "Bank transfer", "Card", "Stripe", "Razorpay", "PayPal", "Cash", "Other"];
 // Default colours for stages, lead stages and sources, handed out in this order.
 // Checked for colour-blind separation and contrast against the dark surface.
 const PALETTE = ["#3987e5", "#d95926", "#199e70", "#c98500", "#d55181", "#008300", "#9085e9", "#e66767"];
@@ -167,7 +168,7 @@ const sb = window.supabase && window.SUPABASE_URL && !/^YOUR_/.test(window.SUPAB
 // Table name -> the record fields stored in it (camelCase here, snake_case in the database).
 const TABLES = {
   contacts: ["name", "company", "email", "phone", "status", "source", "created", "notes"],
-  deals: ["title", "contactId", "value", "stage", "close"],
+  deals: ["title", "contactId", "value", "paidUpfront", "paymentMethod", "stage", "close"],
   calls: ["contactId", "type", "status", "date", "time", "duration", "inviteLead", "guestEmail", "notes"],
   tasks: ["title", "contactId", "due", "priority", "done"],
   campaigns: ["name", "channel", "start", "spend", "impressions", "clicks", "leads"],
@@ -176,7 +177,7 @@ const TABLES = {
 const TABLE_ORDER = { contacts: "inserted_at", deals: "inserted_at", calls: "inserted_at", tasks: "inserted_at", campaigns: "inserted_at", activity: "at" };
 const SETTINGS = ["stages", "stageTypes", "statuses", "sources", "colors", "views", "integrations", "revenueGoal"];
 const DATE_COLS = new Set(["created", "close", "date", "due", "start", "time"]);
-const NUM_COLS = new Set(["value", "duration", "spend", "impressions", "clicks", "leads"]);
+const NUM_COLS = new Set(["value", "paidUpfront", "duration", "spend", "impressions", "clicks", "leads"]);
 const snake = (k) => k.replace(/[A-Z]/g, (c) => "_" + c.toLowerCase());
 
 function toRow(table, rec) {
@@ -672,15 +673,20 @@ function initContacts() {
 /* ---------- Pipeline ---------- */
 function dealForm(existing, stage) {
   if (!db.contacts.length) { alert("Add a lead first."); return; }
+  // Moving a deal into a Won status asks for the payment first; cancelling leaves the deal where it was.
+  const winning = !!(existing && stage && stageType(stage) === "Won" && stageType(existing.stage) !== "Won");
   openModal({
-    title: existing ? "Edit deal" : "New deal",
-    values: existing || { stage },
+    title: winning ? `Close ${existing.title}` : existing ? "Edit deal" : "New deal",
+    values: winning ? { ...existing, stage, close: day() } : existing || { stage },
+    saveLabel: winning ? "Mark as won" : "Save",
     fields: [
       { name: "title", label: "Deal name", required: true, full: true },
       { name: "contactId", label: "Lead", type: "select", options: contactOptions(), full: true },
-      { name: "value", label: "Value (USD)", type: "number", default: 0 },
+      { name: "value", label: "Deal value (USD)", type: "number", default: 0 },
+      { name: "paidUpfront", label: "Paid upfront (USD)", type: "number", default: 0 },
+      { name: "paymentMethod", label: "Payment method", type: "select", options: PAYMENT_METHODS.map((m) => [m, m || "—"]), default: "" },
       { name: "stage", label: "Stage", type: "select", options: db.stages.map((s) => [s, s]), default: db.stages[0] },
-      { name: "close", label: "Expected close", type: "date", default: day(14), full: true },
+      { name: "close", label: "Close date", type: "date", default: day(14), full: true },
     ],
     onSave: (data) => {
       if (existing) { if (existing.stage !== data.stage) log(`${data.title} moved to ${data.stage}`); Object.assign(existing, data); }
@@ -731,6 +737,8 @@ function initPipeline() {
     const col = e.target.closest(".column"); if (!col) return;
     e.preventDefault();
     const deal = db.deals.find((d) => d.id === e.dataTransfer.getData("text/plain"));
+    // Into a Won status: ask for the payment first; the deal moves (and the win alert goes out) on save.
+    if (deal && stageType(col.dataset.stage) === "Won" && stageType(deal.stage) !== "Won") { renderPipeline(); return dealForm(deal, col.dataset.stage); }
     if (deal && deal.stage !== col.dataset.stage) {
       const wasOpen = isOpen(deal);
       deal.stage = col.dataset.stage;
