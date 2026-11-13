@@ -27,6 +27,22 @@ const NAMED_COLORS = {
   PIF: "#008300", "In-House Finance": "#199e70",
 };
 
+/* ---------- Config ----------
+   Business defaults and display limits — change these to tune the app without touching logic. */
+const REVENUE_GOAL_DEFAULT = 30000;
+const NEW_LEADS_DAYS = 30;
+const ACTIVITY_MAX = 40;
+const DASH_ACTIVITY_ROWS = 6;
+const DASH_TASK_ROWS = 5;
+const DASH_LEAD_ROWS = 5;
+const REVENUE_MONTHS = 6;
+const MARKETING_WEEKS = 8;
+const CLOSE_DAYS_DEFAULT = 14;
+const PAST_CALLS_MAX = 10;
+const TOP_CLIENTS_MAX = 5;
+const FOLLOWUP_DAYS = 1;
+const BIG_DEAL_MIN = 10000;
+
 const uid = () => Math.random().toString(36).slice(2, 10);
 const ymd = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 const day = (offset = 0) => { const d = new Date(); d.setDate(d.getDate() + offset); return ymd(d); };
@@ -44,7 +60,7 @@ const write = (k, v) => { try { v == null ? localStorage.removeItem(k) : localSt
 function seed() {
   return {
     stages: [...DEFAULT_STAGES], stageTypes: { ...DEFAULT_STAGE_TYPES }, statuses: [...DEFAULT_STATUSES], sources: [...DEFAULT_SOURCES],
-    contacts: [], deals: [], tasks: [], calls: [], campaigns: [], integrations: {}, revenueGoal: 30000, activity: [],
+    contacts: [], deals: [], tasks: [], calls: [], campaigns: [], integrations: {}, revenueGoal: REVENUE_GOAL_DEFAULT, activity: [],
   };
 }
 
@@ -90,7 +106,7 @@ function defaultViews(data) {
     { id: uid(), name: "Calls booked", filters: f({ next: "call" }) },
     { id: uid(), name: "Needs follow-up", filters: f({ statuses: data.statuses.slice(0, 3), next: "none" }) },
     { id: uid(), name: "Clients", filters: f({ deal: "won" }) },
-    { id: uid(), name: "Big deals $10k+", filters: f({ minValue: 10000 }) },
+    { id: uid(), name: `Big deals $${(BIG_DEAL_MIN / 1000).toFixed(0)}k+`, filters: f({ minValue: BIG_DEAL_MIN }) },
   ];
 }
 // Give a name the first palette colour its list isn't using yet, so colours stay put when lists are reordered.
@@ -101,7 +117,7 @@ function assignColor(data, kind, name) {
   const used = new Set(Object.values(map));
   map[name] = PALETTE.find((c) => !used.has(c)) || PALETTE[Object.keys(map).length % PALETTE.length];
 }
-function log(text) { db.activity.unshift({ id: uid(), text, at: Date.now() }); db.activity = db.activity.slice(0, 40); }
+function log(text) { db.activity.unshift({ id: uid(), text, at: Date.now() }); db.activity = db.activity.slice(0, ACTIVITY_MAX); }
 
 let db;
 const contactOf = (id) => db.contacts.find((c) => c.id === id);
@@ -462,14 +478,14 @@ function renderDashboard() {
   $("#kpis").innerHTML = [
     ["Open pipeline", money(sum(open, (d) => d.value)), `${open.length} active deals`],
     ["Revenue won", money(sum(won, (d) => d.value)), `${won.length} closed`],
-    ["Leads", db.contacts.length, `${db.contacts.filter((c) => c.created >= day(-30)).length} new in 30 days`],
+    ["Leads", db.contacts.length, `${db.contacts.filter((c) => c.created >= day(-NEW_LEADS_DAYS)).length} new in ${NEW_LEADS_DAYS} days`],
     canSee("calendar") ? ["Calls today", callsToday.length, `${dueToday.length} tasks due now`] : ["Won this month", money(sum(wonThisMonth, (d) => d.value)), `${wonThisMonth.length} deals`],
   ].map(([l, v, s]) => `<div class="card kpi"><div class="label">${l}</div><div class="value">${v}</div><div class="sub">${s}</div></div>`).join("");
 
   $("#stages").innerHTML = byStage.map(([s, v]) => `
     <div class="bar-row"><span class="dot-label" style="--c:${colorOf("stages", s)}"><i></i>${esc(s)}</span><div class="track"><div class="fill" style="width:${(v / max) * 100}%;background:${colorOf("stages", s)}"></div></div><span class="v num">${v}</span></div>`).join("");
 
-  const up = pending.slice().sort((a, b) => a.due.localeCompare(b.due)).slice(0, 5);
+  const up = pending.slice().sort((a, b) => a.due.localeCompare(b.due)).slice(0, DASH_TASK_ROWS);
   $("#upcoming").innerHTML = up.length ? up.map((t) => { const d = dueInfo(t.due); return `
     <div class="list-item"><div class="grow"><div>${esc(t.title)}</div><div class="sub-line">${esc(contactName(t.contactId))}</div></div><span class="due ${d.cls}">${d.text}</span></div>`; }).join("")
     : `<div class="empty">Nothing due. Enjoy the quiet.</div>`;
@@ -479,10 +495,10 @@ function renderDashboard() {
     <div class="list-item"><div class="person grow"><div class="avatar">${initials(contactName(c.contactId))}</div><div style="min-width:0"><div class="name">${esc(contactName(c.contactId))}</div><div class="meta">${esc(c.type)}</div></div></div><span class="when">${relDay(c.date)} · ${fmtTime(c.time)}</span></div>`).join("")
     : `<div class="empty">No calls booked.</div>`;
 
-  $("#activity").innerHTML = db.activity.slice(0, 6).map((a) => `
+  $("#activity").innerHTML = db.activity.slice(0, DASH_ACTIVITY_ROWS).map((a) => `
     <div class="list-item"><span class="dot"></span><div class="grow">${esc(a.text)}</div><span class="when">${ago(a.at)}</span></div>`).join("");
 
-  const recent = db.contacts.slice().sort((a, b) => b.created.localeCompare(a.created)).slice(0, 5);
+  const recent = db.contacts.slice().sort((a, b) => b.created.localeCompare(a.created)).slice(0, DASH_LEAD_ROWS);
   $("#recent").innerHTML = recent.map((c) => `
     <div class="list-item"><div class="person grow"><div class="avatar">${initials(c.name)}</div><div style="min-width:0"><div class="name">${esc(c.name)}</div><div class="meta">${esc(c.company)} · ${esc(c.source)}</div></div></div>${statusBadge(c.status)}</div>`).join("");
 }
@@ -698,7 +714,7 @@ function dealForm(existing, stage) {
       { name: "paidUpfront", label: "Paid upfront (USD)", type: "number", default: 0 },
       { name: "paymentMethod", label: "Payment method", type: "select", options: PAYMENT_METHODS.map((m) => [m, m || "—"]), default: "" },
       { name: "stage", label: "Stage", type: "select", options: db.stages.map((s) => [s, s]), default: db.stages[0] },
-      { name: "close", label: "Close date", type: "date", default: day(14), full: true },
+      { name: "close", label: "Close date", type: "date", default: day(CLOSE_DAYS_DEFAULT), full: true },
     ],
     onSave: (data) => {
       if (existing) { if (existing.stage !== data.stage) log(`${data.title} moved to ${data.stage}`); Object.assign(existing, data); syncContactFromDeal(existing); }
@@ -837,7 +853,7 @@ function renderCalendar() {
     <td><div class="person"><div class="avatar">${initials(contactName(c.contactId))}</div><div><div class="name">${esc(contactName(c.contactId))}</div><div class="meta">${esc(contactOf(c.contactId)?.company || "")}</div></div></div></td>
     <td>${esc(c.type)}</td><td>${relDay(c.date)} · ${fmtTime(c.time)}</td><td>${c.duration} min</td><td>${callBadge(c.status)}</td></tr>`;
   $("#upcoming-calls").innerHTML = upcoming.length ? upcoming.map(row).join("") : `<tr><td colspan="5"><div class="empty">No calls booked yet.</div></td></tr>`;
-  $("#past-calls").innerHTML = past.length ? past.slice(0, 10).map(row).join("") : `<tr><td colspan="5"><div class="empty">No call history yet.</div></td></tr>`;
+  $("#past-calls").innerHTML = past.length ? past.slice(0, PAST_CALLS_MAX).map(row).join("") : `<tr><td colspan="5"><div class="empty">No call history yet.</div></td></tr>`;
 
   const done = db.calls.filter((c) => c.status === "Completed").length, noshow = db.calls.filter((c) => c.status === "No-show").length;
   $("#call-stats").textContent = `${upcoming.length} upcoming · ${pct(done / Math.max(1, done + noshow))} show-up rate`;
@@ -922,13 +938,13 @@ function initTasks() {
     const b = e.target.closest("[data-follow]"); if (!b) return;
     const c = contactOf(b.dataset.follow);
     taskForm(null); const f = $("#modal-root form").elements;
-    f.title.value = `Follow up with ${c.name.split(" ")[0]}`; f.contactId.value = c.id; f.due.value = day(1);
+    f.title.value = `Follow up with ${c.name.split(" ")[0]}`; f.contactId.value = c.id; f.due.value = day(FOLLOWUP_DAYS);
   };
   renderTasks();
 }
 
 /* ---------- Marketing Analytics ---------- */
-function weeklyLeads(weeks = 8) {
+function weeklyLeads(weeks = MARKETING_WEEKS) {
   const now = new Date(); const monday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - ((now.getDay() + 6) % 7));
   return Array.from({ length: weeks }, (_, i) => {
     const start = new Date(monday); start.setDate(start.getDate() - (weeks - 1 - i) * 7);
@@ -965,7 +981,7 @@ function renderMarketing() {
   const thisWeek = weeks[weeks.length - 1].value, lastWeek = weeks[weeks.length - 2].value;
 
   $("#kpis").innerHTML = [
-    ["New leads · 30 days", db.contacts.filter((c) => c.created >= day(-30)).length, `${thisWeek} this week, ${lastWeek} last week`],
+    [`New leads · ${NEW_LEADS_DAYS} days`, db.contacts.filter((c) => c.created >= day(-NEW_LEADS_DAYS)).length, `${thisWeek} this week, ${lastWeek} last week`],
     ["Ad spend", money(spend), `${db.campaigns.length} campaigns`],
     ["Cost per lead", campaignLeads ? money(spend / campaignLeads) : "—", `${campaignLeads} leads from campaigns`],
     ["Lead → client", pct(converted / Math.max(1, db.contacts.length)), `${converted} of ${db.contacts.length} leads bought`],
@@ -1010,7 +1026,7 @@ function renderRevenue() {
   const thisMonth = sum(won.filter((d) => d.close.startsWith(monthKey)), (d) => d.value);
   const goal = db.revenueGoal;
 
-  const months = Array.from({ length: 6 }, (_, i) => {
+  const months = Array.from({ length: REVENUE_MONTHS }, (_, i) => {
     const d = new Date(); d.setDate(1); d.setMonth(d.getMonth() - (5 - i));
     const key = ymd(d).slice(0, 7);
     return { label: d.toLocaleDateString("en-US", { month: "long", year: "numeric" }), short: d.toLocaleDateString("en-US", { month: "short" }), value: sum(won.filter((x) => x.close.startsWith(key)), (x) => x.value) };
@@ -1043,7 +1059,7 @@ function renderRevenue() {
 
   const byClient = {};
   won.forEach((d) => { byClient[d.contactId] = (byClient[d.contactId] || 0) + d.value; });
-  const top = Object.entries(byClient).sort((a, b) => b[1] - a[1]).slice(0, 5);
+  const top = Object.entries(byClient).sort((a, b) => b[1] - a[1]).slice(0, TOP_CLIENTS_MAX);
   $("#top-clients").innerHTML = top.length ? top.map(([id, v]) => `
     <div class="list-item"><div class="person grow"><div class="avatar">${initials(contactName(id))}</div><div style="min-width:0"><div class="name">${esc(contactName(id))}</div><div class="meta">${esc(contactOf(id)?.company || "")}</div></div></div><span class="num">${money(v)}</span></div>`).join("")
     : `<div class="empty">No won deals yet.</div>`;
